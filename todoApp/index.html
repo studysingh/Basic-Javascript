@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+    <title>Todo App</title>
+</head>
+<body>
+    <div class="container">
+        <h1 id="heading">Todo App</h1>
+        <table>
+            <thead>
+                <th><input type="text" id="task-area" class="header" placeholder="Write your task here"></th>
+                <th><input type="date" id="task-schedule" class="header"></th>
+                <th><button id="add-button" class="header buttons">Add</button></th>
+            </thead>
+            <tbody id="added-task">
+            </tbody>
+        </table>
+    </div>
+</body>
+<script>
+
+    // storing input variable
+    let task = document.querySelector('#task-area')
+    let task_date = document.querySelector('#task-schedule')
+    let add_btn = document.querySelector('#add-button')
+    let taskList = document.querySelector('#added-task')
+    let todoList = []
+
+    // display each task
+    function displayList() {
+        let arr = JSON.parse(localStorage.getItem('stored-task')) || todoList
+        todoList = arr 
+        taskList.innerHTML = ''
+        for (let i = todoList.length - 1; i >= 0; i--) {
+            thisTask = todoList[i].taskDes
+            thisDate = todoList[i].taskDate
+            let newEl = document.createElement('tr')
+            newEl.innerHTML = `
+                            <td class="scheduled-task">${thisTask}</td>
+                            <td class="scheduled-date">${thisDate}</td>
+                            <td><button class="buttons delete-button" onclick="deleteTask(${i})">Delete</button></td>
+                            `
+
+            taskList.appendChild(newEl)
+        }
+    }
+    // adding task to the array
+    add_btn.addEventListener('click', added_task)
+    function added_task() {
+        let myTask = task.value;
+        let myDate = task_date.value;
+        if (!myTask) return
+        if (!myDate) return
+        let year = myDate.slice(0, 4)
+        let month = myDate.slice(5, 7)
+        let day = myDate.slice(8, 10)
+
+        let formatted_date = `${day}-${month}-${year}`
+
+        let currentTask = {
+            taskDes: myTask,
+            taskDate: formatted_date,
+        };
+
+        todoList.push(currentTask);
+
+        let listString = JSON.stringify(todoList)
+        localStorage.setItem('stored-task', listString)
+
+        displayList()
+    }
+
+    function deleteTask(i){
+        todoList.splice(i,1);
+        let listString = JSON.stringify(todoList)
+        localStorage.setItem('stored-task',listString)
+        displayList()
+        // if(todoList.length === 0) localStorage.removeItem('stored-task')
+    }
+
+    // when page is refreshed we should recover the previous task
+    displayList()
+</script>
+</html>
